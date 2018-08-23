@@ -6,10 +6,17 @@ module BoJack
   class Request
     @logger : BoJack::Logger = BoJack::Logger.instance
 
-    def initialize(@body : String, @socket : TCPSocket); end
+    def initialize(@body : String, @socket : TCPSocket | UNIXSocket); end
 
+    def unix_socket_server?
+      @socket.class == UNIXSocket
+    end
     def perform
-      @logger.info("#{@socket.remote_address} requested: #{@body.strip}")
+      if unix_socket_server?
+        @logger.info("#{@socket.as(UNIXSocket).remote_address} requested: #{@body.strip}")
+      else
+        @logger.info("#{@socket.as(TCPSocket).remote_address} requested: #{@body.strip}")
+      end
       params = parse(@body)
       command = BoJack::Command.from(params[:command])
 

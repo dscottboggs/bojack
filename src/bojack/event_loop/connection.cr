@@ -8,17 +8,24 @@ module BoJack
     class Connection
       @logger : BoJack::Logger = BoJack::Logger.instance
 
-      def initialize(@server : TCPServer, @channel : ::Channel::Unbuffered(BoJack::Request)); end
+      def initialize(@server : TCPServer | UNIXServer, @channel : ::Channel::Unbuffered(BoJack::Request)); end
 
       def start
         loop do
           if socket = @server.accept?
-            @logger.info("#{socket.remote_address} connected")
-
-            Message.new(socket, @channel).start
+            if socket.class == TCPSocket
+              sock = socket.as(TCPSocket)
+              @logger.info("#{sock.remote_address} connected")
+              Message.new(sock, @channel).start
+            else
+              sock = socket.as(UNIXSocket)
+              @logger.info("#{sock.remote_address} connected")
+              Message.new(sock, @channel).start
+            end
           end
         end
       end
+
     end
   end
 end

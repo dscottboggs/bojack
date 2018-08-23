@@ -41,6 +41,13 @@ module BoJack
           end
 
           command.flags.add do |flag|
+            flag.name = "socket-path"
+            flag.long = "--socket"
+            flag.default = ""
+            flag.description = "The path to the unix socket."
+          end
+
+          command.flags.add do |flag|
             flag.name = "log"
             flag.long = "--log"
             flag.default = ""
@@ -63,8 +70,18 @@ module BoJack
 
             BoJack::Logger.build(output, options.int["log-level"].as(Int32),
                                  options.string["hostname"], options.int["port"].as(Int32))
-
-            BoJack::Server.new(options.string["hostname"], options.int["port"]).start
+            pp options
+            pp arguments
+            if (sockpath = options.string["socket-path"]).empty?
+              BoJack::Server.new(
+                hostname: options.string["hostname"],
+                port: options.int["port"].to_u16
+              ).start
+            elsif sockpath == "auto"
+              BoJack::Server.new(socket_path: "/tmp/bojack.sock").start
+            else
+              BoJack::Server.new(socket_path: sockpath).start
+            end
           end
         end
 
@@ -92,7 +109,6 @@ module BoJack
           end
         end
       end
-
       Commander.run(cli, args)
     end
   end

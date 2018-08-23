@@ -6,7 +6,7 @@ module BoJack
     class Signal
       @logger : BoJack::Logger = BoJack::Logger.instance
 
-      def watch(server : TCPServer)
+      def watch(server : TCPServer | UNIXServer)
         ::Signal::INT.trap do
           @logger.info("BoJack is going to take a rest")
 

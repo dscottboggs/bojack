@@ -4,7 +4,14 @@ require "../request"
 module BoJack
   module EventLoop
     class Message
-      def initialize(@socket : TCPSocket, @channel : ::Channel::Unbuffered(BoJack::Request)); end
+      def initialize(
+        @socket : TCPSocket | UNIXSocket,
+        @channel : ::Channel::Unbuffered(BoJack::Request)
+      ); end
+
+      def unix_socket_server?
+        @socket.class == UNIXSocket
+      end
 
       def start
         spawn do
@@ -12,7 +19,11 @@ module BoJack
             message = @socket.gets
             break unless message
 
-            @channel.send(BoJack::Request.new(message, @socket))
+            if unix_socket_server?
+              @channel.send(BoJack::Request.new(message, @socket.as(UNIXSocket)))
+            else
+              @channel.send(BoJack::Request.new(message, @socket.as(TCPSocket)))
+            end
           end
         end
       end
