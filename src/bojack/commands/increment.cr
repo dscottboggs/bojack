@@ -17,11 +17,11 @@ module BoJack
 
         raise ArgumentError.new("'#{key}' cannot be incremented") unless cast.is_a?(Int64)
 
-        new = ((cast || 0) + 1).to_s
+        new_value = ((cast || 0) + 1).to_s
 
-        memory.write(key, [new])
+        memory.write(key, [new_value])
 
-        new
+        new_value
       end
     end
   end
