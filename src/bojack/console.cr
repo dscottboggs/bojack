@@ -1,13 +1,21 @@
 require "readline"
-require "bojack-client"
+require "../../../bojack.cr/src/bojack-client"
 
 module BoJack
   class Console
     @client : BoJack::Client?
 
-    def initialize(@hostname : String = "127.0.0.1", @port : Int8 | Int16 | Int32 | Int64 = 5000)
+    def initialize(hostname : String = "127.0.0.1",
+                   port : UInt16 = 5000,
+                   socket_path : String = "")
+      @hostname = socket_path.empty? ? hostname : socket_path
+      @port = port
       begin
-        @client = BoJack::Client.new(@hostname, @port)
+        @client = BoJack::Client.new(
+          hostname: hostname,
+          port: port,
+          socket_path: socket_path
+        )
       rescue exception
         puts exception.message
         exit -1

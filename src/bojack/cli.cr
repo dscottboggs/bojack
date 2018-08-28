@@ -104,8 +104,19 @@ module BoJack
             flag.description = "Port."
           end
 
+          command.flags.add do |flag|
+            flag.name = "socket"
+            flag.long = "--socket"
+            flag.default = ""
+            flag.description = "The Unix socket file to bind to."
+          end
+
           command.run do |options, arguments|
-            BoJack::Console.new(options.string["hostname"], options.int["port"]).start
+            BoJack::Console.new(
+              hostname: options.string["hostname"],
+              port: options.int["port"].to_u16,
+              socket_path: options.string["socket"]
+            ).start
           end
         end
       end

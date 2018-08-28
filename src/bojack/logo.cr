@@ -4,6 +4,7 @@ module BoJack
   class Logo
     def self.render(logger)
       logo = <<-'HERE'
+
              _|\ _/|_,
            ,((\\``-\\\\_
          ,(())      `))\
